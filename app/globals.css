@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* JEFF SU THEME VARIABLES */
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+/* Force the body to be that warm paper color by default */
+body {
+  background-color: #fbf8f3;
+  color: #1a1a1a;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

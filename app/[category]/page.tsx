@@ -19,5 +19,6 @@ export default async function CategoryPage({
   }
 
   // Auto-render the first post so the page isn't empty
-  return <ArticleViewer post={firstPost} />;
+  // If your post has a 'blocks' property, pass it. Otherwise, pass 'content' or adjust as needed.
+  return <ArticleViewer blocks={firstPost.blocks || []} />;
 }

@@ -16,6 +16,7 @@ export interface PostMetadata {
   date: string;
   excerpt: string;
   image: string;
+  featuredImage: string; // <--- NEW FIELD
   featured: boolean;
   status: string;
   tags: string[];
@@ -55,8 +56,8 @@ export const getAllPosts = cache(async (): Promise<PostMetadata[]> => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          // We ask Notion to sort, but we will ALSO sort in JS to be 100% sure
           sorts: [{ property: "Date", direction: "descending" }],
-          // FILTER REMOVED from API call. We filter below instead.
         }),
         next: { revalidate: 60 },
       },
@@ -68,8 +69,6 @@ export const getAllPosts = cache(async (): Promise<PostMetadata[]> => {
 
     const allPosts = data.results.map((page: any) => {
       const props = page.properties;
-
-      // Robustly get status (Handles both "Status" and "Select" types)
       const statusVal =
         props.Status?.status?.name || props.Status?.select?.name || "Unknown";
 
@@ -84,9 +83,15 @@ export const getAllPosts = cache(async (): Promise<PostMetadata[]> => {
         category: props.Category?.select?.name || "Uncategorized",
         date: props.Date?.date?.start || new Date().toISOString().split("T")[0],
         excerpt: props.Excerpt?.rich_text?.[0]?.plain_text || "",
+        // Existing thumbnail image
         image:
           props.Image?.files?.[0]?.file?.url ||
           props.Image?.files?.[0]?.external?.url ||
+          "",
+        // <--- NEW: Fetch the FeaturedImage property
+        featuredImage:
+          props.FeaturedImage?.files?.[0]?.file?.url ||
+          props.FeaturedImage?.files?.[0]?.external?.url ||
           "",
         featured: props.Featured?.checkbox || false,
         status: statusVal,
@@ -94,12 +99,16 @@ export const getAllPosts = cache(async (): Promise<PostMetadata[]> => {
       };
     });
 
-    // --- THE FILTER ---
-    // We filter in memory. This is safer and easier to debug.
-    return allPosts.filter((post: PostMetadata) => {
-      // console.log(`Checking: ${post.title} -> ${post.status}`); // Uncomment to debug
-      return post.status === "Published";
-    });
+    // --- FILTER & SORT ---
+    return allPosts
+      .filter((post: PostMetadata) => {
+        // Only allow Published posts
+        return post.status === "Published";
+      })
+      .sort((a: PostMetadata, b: PostMetadata) => {
+        // Enforce Newest -> Oldest (Descending)
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
+      });
   } catch (error) {
     console.error("Critical Fetch Error:", error);
     return [];

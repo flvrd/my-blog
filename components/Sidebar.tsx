@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import Image from "next/image";
 
 interface SidebarProps {
   categories?: string[];
@@ -45,17 +46,20 @@ export function Sidebar({ categories }: SidebarProps) {
     <>
       <nav className="flex flex-col h-full bg-[#FBF8F3] border-r border-[#E5E0D6] px-4 py-6 relative z-10">
         {/* 1. LOGO */}
-        <div className=" px-2">
+
+        <div className="px-2 flex flex-col">
           <h1 className="font-sans-serif text-8xl font-bold tracking-wide text-[#0a0a0a]">
             A Blog
           </h1>
+          {/* PROFILE IMAGE */}
+
           <p className="text-sm text-slate-400 my-5">
-            Ryan's musings about life, people, and everything in between.
+            Ryan's musings about life, people, work and everything in between.
           </p>
         </div>
 
         {/* 3. MAIN NAVIGATION */}
-        <div className="space-y-1">
+        <div className="space-y-1 flex flex-col w-full">
           {/* ABOUT ME BUTTON */}
           <button
             onClick={openModal}
@@ -71,8 +75,18 @@ export function Sidebar({ categories }: SidebarProps) {
           >
             Contact Me
           </button>
-        </div>
 
+          {/* LINKEDIN PROFILE */}
+          <a
+            href="https://www.linkedin.com/in/ryan-johnson-diskord/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50 rounded-md transition-all text-left mt-1"
+          >
+            LinkedIn
+          </a>
+        </div>
+        <div className="my-10 border border-spacing-40 bg-gray-200"></div>
         <Link href="/" className={getLinkClass("/")}>
           All Posts
         </Link>
@@ -148,20 +162,30 @@ export function Sidebar({ categories }: SidebarProps) {
               {modalView === "bio" ? (
                 // --- VIEW 1: BIO ---
                 <div className="space-y-4 text-slate-600 leading-relaxed animate-in slide-in-from-left-4 duration-300">
+                  <div className="flex justify-center my-4 w-full">
+                    <Image
+                      src="/assets/ryan-image.png"
+                      alt="Profile"
+                      width={160}
+                      height={160}
+                      className="rounded-full object-cover border-2 border-slate-300"
+                      priority
+                    />
+                  </div>
                   <p>
-                    Hi, I'm <strong>Ryan Johnson</strong>. I'm a UX Designer and
-                    Product Manager based in Urbandale, Iowa.
+                    I'm Ryan. I'm a UX Designer and Product Manager based in the
+                    heartland.
                   </p>
                   <p>
-                    I'm passionate about building intuitive products that solve
-                    real problems. When I'm not designing, you'll likely find me
-                    obsessing over architecture (especially Frank Lloyd Wright),
-                    tinkering with my 3D printer, or chasing the perfect shot of
-                    espresso.
+                    I'm passionate about building and running teams so that they
+                    can create products that solve real problems. When I'm not
+                    designing, you'll likely find me with my children doing
+                    comedy bits, tinkering with my 3D printer, or chasing the
+                    perfect shot of espresso.
                   </p>
                   <p>
                     I love traveling the world with my family—Jenny, Addie,
-                    Cohen, and Soren—and hanging out with our cat, Morty.
+                    Cohen, and Soren being poor comedians.
                   </p>
                 </div>
               ) : (

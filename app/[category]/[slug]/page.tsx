@@ -1,4 +1,3 @@
-// 1. THIS IMPORT WAS MISSING:
 import ArticleViewer from "@/components/ArticleViewer";
 import { getPostBySlug } from "@/lib/posts";
 
@@ -38,6 +37,17 @@ export default async function Page({ params }: any) {
           <p className="text-xl md:text-2xl text-gray-500 dark:text-gray-400 leading-relaxed font-light">
             {post.subtitle}
           </p>
+        )}
+
+        {/* <--- NEW: Render Featured Image if it exists in Notion ---> */}
+        {post.featuredImage && (
+          <div className="mt-8">
+            <img
+              src={post.featuredImage}
+              alt={`Featured image for ${post.title}`}
+              className="w-full h-auto rounded-xl shadow-lg object-cover aspect-video"
+            />
+          </div>
         )}
       </header>
 

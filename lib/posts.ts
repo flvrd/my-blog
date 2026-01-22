@@ -20,7 +20,6 @@ export interface PostMetadata {
   status: string;
   tags: string[];
   content?: string;
-  content?: string; // <-- Add this line
 }
 
 export const getAllPosts = cache(async (): Promise<PostMetadata[]> => {

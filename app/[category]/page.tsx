@@ -1,5 +1,5 @@
 import { getCategoryPosts } from "@/lib/posts";
-import { ArticleViewer } from "@/components/ArticleViewer";
+import ArticleViewer from "@/components/ArticleViewer";
 
 export default async function CategoryPage({
   params,

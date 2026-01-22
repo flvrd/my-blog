@@ -1,6 +1,6 @@
 import { getAllPosts } from "@/lib/posts";
 import { ArticleList } from "@/components/ArticleList";
-import { ArticleViewer } from "@/components/ArticleViewer";
+import ArticleViewer from "@/components/ArticleViewer";
 
 // This is your Homepage (localhost:3000)
 export default async function HomePage() {

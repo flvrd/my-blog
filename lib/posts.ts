@@ -19,14 +19,34 @@ export interface PostMetadata {
   featured: boolean;
   status: string;
   tags: string[];
-  content?: string;
+  blocks?: any[];
 }
+
+// 2. NEW FUNCTION: Fetches the actual content (blocks) of a page
+export const getBlocks = cache(async (pageId: string) => {
+  const res = await fetch(
+    `https://api.notion.com/v1/blocks/${pageId}/children?page_size=100`,
+    {
+      headers: {
+        Authorization: `Bearer ${NOTION_API_KEY}`,
+        "Notion-Version": "2022-06-28",
+      },
+      next: { revalidate: 60 },
+    },
+  );
+
+  if (!res.ok) {
+    console.error("Failed to fetch blocks", await res.text());
+    return [];
+  }
+
+  const data = await res.json();
+  return data.results;
+});
 
 export const getAllPosts = cache(async (): Promise<PostMetadata[]> => {
   try {
-    console.log("Fetching Notion Data...");
-
-    // 1. Fetch EVERYTHING (No Filter) to debug
+    // Fetch the list of posts (Metadata only)
     const res = await fetch(
       `https://api.notion.com/v1/databases/${NOTION_DATABASE_ID}/query`,
       {
@@ -38,58 +58,43 @@ export const getAllPosts = cache(async (): Promise<PostMetadata[]> => {
         },
         body: JSON.stringify({
           sorts: [{ property: "Date", direction: "descending" }],
+          // FILTER REMOVED: This was causing the empty list
         }),
-        next: { revalidate: 1 }, // Disable cache to see changes immediately
+        next: { revalidate: 60 },
       },
     );
 
-    if (!res.ok) {
-      console.error(`🚨 Notion Error ${res.status}:`, await res.text());
-      return [];
-    }
+    if (!res.ok) return [];
 
     const data = await res.json();
-    console.log(`✅ Connection Success! Found ${data.results.length} rows.`);
 
-    // 2. Map the data safely
     return data.results.map((page: any) => {
       const props = page.properties;
-
-      // Log the exact Status value so we can fix the filter later
       const statusVal =
         props.Status?.select?.name || props.Status?.status?.name || "Unknown";
 
       return {
         id: page.id,
-        // Title: Handle different casing of "Name" or "title"
         title:
           props.Name?.title?.[0]?.plain_text ||
           props.Title?.title?.[0]?.plain_text ||
           "Untitled",
         subtitle: props.Subtitle?.rich_text?.[0]?.plain_text || "",
         slug: props.Slug?.rich_text?.[0]?.plain_text || page.id,
-
-        // Category: Handle Select type
         category: props.Category?.select?.name || "Uncategorized",
-
-        // Date: Handle Date type
         date: props.Date?.date?.start || new Date().toISOString().split("T")[0],
-
         excerpt: props.Excerpt?.rich_text?.[0]?.plain_text || "",
         image:
           props.Image?.files?.[0]?.file?.url ||
           props.Image?.files?.[0]?.external?.url ||
           "",
         featured: props.Featured?.checkbox || false,
-
-        // Status: Handle BOTH Select and Status types
         status: statusVal,
         tags: props.Tags?.multi_select?.map((t: any) => t.name) || [],
-        content: props.Content?.rich_text?.[0]?.plain_text || "", // <-- Add this line
       };
     });
   } catch (error) {
-    console.error("🚨 Critical Fetch Error:", error);
+    console.error("Critical Fetch Error:", error);
     return [];
   }
 });
@@ -97,7 +102,6 @@ export const getAllPosts = cache(async (): Promise<PostMetadata[]> => {
 // Helpers
 export async function getUniqueCategories() {
   const posts = await getAllPosts();
-  // Filter out undefined/null categories
   const categories = new Set(
     posts.map((p) => p.category).filter((c) => c && c !== "Uncategorized"),
   );
@@ -114,5 +118,12 @@ export async function getCategoryPosts(category: string) {
 
 export async function getPostBySlug(slug: string) {
   const allPosts = await getAllPosts();
-  return allPosts.find((p) => p.slug === slug) || null;
+  const post = allPosts.find((p) => p.slug === slug);
+
+  if (!post) return null;
+
+  // Now that we have the Page ID, go get the actual content blocks
+  const blocks = await getBlocks(post.id);
+
+  return { ...post, blocks };
 }

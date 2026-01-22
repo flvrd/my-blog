@@ -66,7 +66,7 @@ export function ArticleList({ posts, category }: ArticleListProps) {
                 href={href}
                 className={`block p-4 rounded-lg transition-all border ${
                   isActive
-                    ? "bg-[#2D2D2D] border-[#2D2D2D]"
+                    ? "bg-[#0a0a0a] border-[#2D2D2D]"
                     : "bg-white border-transparent hover:bg-[#FBF8F3] hover:border-[#E5E0D6]"
                 }`}
               >

@@ -13,7 +13,7 @@ export function ArticleViewer({ post }: { post: PostMetadata }) {
       </div>
 
       {/* TITLE */}
-      <h1 className="text-4xl md:text-5xl font-sans font-extrabold text-[#1A1A1A] leading-tight mb-6">
+      <h1 className="text-8xl md:text-5xl font-sans font-extrabold text-[#1A1A1A] leading-tight mb-6">
         {post.title}
       </h1>
 
@@ -42,9 +42,7 @@ export function ArticleViewer({ post }: { post: PostMetadata }) {
         {post.content ? (
           <ReactMarkdown>{post.content}</ReactMarkdown>
         ) : (
-          <p className="text-slate-400 italic">
-            No content found for this article.
-          </p>
+          <p className="text-slate-400 italic">No content available</p>
         )}
       </div>
     </div>

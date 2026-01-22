@@ -22,7 +22,7 @@ export default async function HomePage() {
       {/* RIGHT COLUMN: The Latest Article Content */}
       <main className="flex-1 h-full overflow-y-auto bg-white dark:bg-slate-950">
         {latestPost ? (
-          <ArticleViewer post={latestPost} />
+          <ArticleViewer blocks={latestPost.blocks || []} />
         ) : (
           <div className="flex items-center justify-center h-full text-slate-500">
             No posts found.

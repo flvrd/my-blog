@@ -29,7 +29,7 @@ export default async function Page({ params }: any) {
           </time>
         </div>
 
-        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight tracking-tight">
+        <h1 className="text-4xl md:text-8xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight tracking-tight">
           {post.title}
         </h1>
 

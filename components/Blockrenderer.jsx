@@ -83,7 +83,7 @@ export const BlockRenderer = ({ block }) => {
 
     case "heading_1":
       return (
-        <h1 className="text-3xl font-bold mt-10 mb-4 text-gray-900 dark:text-white">
+        <h1 className="text-6xl font-bold mt-10 mb-4 text-gray-900 dark:text-white">
           <Text text={value.rich_text} />
         </h1>
       );

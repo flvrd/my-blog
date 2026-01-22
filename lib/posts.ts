@@ -22,7 +22,6 @@ export interface PostMetadata {
   blocks?: any[];
 }
 
-// 2. NEW FUNCTION: Fetches the actual content (blocks) of a page
 export const getBlocks = cache(async (pageId: string) => {
   const res = await fetch(
     `https://api.notion.com/v1/blocks/${pageId}/children?page_size=100`,
@@ -46,7 +45,6 @@ export const getBlocks = cache(async (pageId: string) => {
 
 export const getAllPosts = cache(async (): Promise<PostMetadata[]> => {
   try {
-    // Fetch the list of posts (Metadata only)
     const res = await fetch(
       `https://api.notion.com/v1/databases/${NOTION_DATABASE_ID}/query`,
       {
@@ -58,7 +56,7 @@ export const getAllPosts = cache(async (): Promise<PostMetadata[]> => {
         },
         body: JSON.stringify({
           sorts: [{ property: "Date", direction: "descending" }],
-          // FILTER REMOVED: This was causing the empty list
+          // FILTER REMOVED from API call. We filter below instead.
         }),
         next: { revalidate: 60 },
       },
@@ -68,10 +66,12 @@ export const getAllPosts = cache(async (): Promise<PostMetadata[]> => {
 
     const data = await res.json();
 
-    return data.results.map((page: any) => {
+    const allPosts = data.results.map((page: any) => {
       const props = page.properties;
+
+      // Robustly get status (Handles both "Status" and "Select" types)
       const statusVal =
-        props.Status?.select?.name || props.Status?.status?.name || "Unknown";
+        props.Status?.status?.name || props.Status?.select?.name || "Unknown";
 
       return {
         id: page.id,
@@ -92,6 +92,13 @@ export const getAllPosts = cache(async (): Promise<PostMetadata[]> => {
         status: statusVal,
         tags: props.Tags?.multi_select?.map((t: any) => t.name) || [],
       };
+    });
+
+    // --- THE FILTER ---
+    // We filter in memory. This is safer and easier to debug.
+    return allPosts.filter((post: PostMetadata) => {
+      // console.log(`Checking: ${post.title} -> ${post.status}`); // Uncomment to debug
+      return post.status === "Published";
     });
   } catch (error) {
     console.error("Critical Fetch Error:", error);
@@ -122,7 +129,6 @@ export async function getPostBySlug(slug: string) {
 
   if (!post) return null;
 
-  // Now that we have the Page ID, go get the actual content blocks
   const blocks = await getBlocks(post.id);
 
   return { ...post, blocks };

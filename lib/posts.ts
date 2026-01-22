@@ -19,6 +19,8 @@ export interface PostMetadata {
   featured: boolean;
   status: string;
   tags: string[];
+  content?: string;
+  content?: string; // <-- Add this line
 }
 
 export const getAllPosts = cache(async (): Promise<PostMetadata[]> => {
@@ -84,6 +86,7 @@ export const getAllPosts = cache(async (): Promise<PostMetadata[]> => {
         // Status: Handle BOTH Select and Status types
         status: statusVal,
         tags: props.Tags?.multi_select?.map((t: any) => t.name) || [],
+        content: props.Content?.rich_text?.[0]?.plain_text || "", // <-- Add this line
       };
     });
   } catch (error) {

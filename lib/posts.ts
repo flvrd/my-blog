@@ -23,9 +23,9 @@ export interface PostMetadata {
 
 export const getAllPosts = cache(async (): Promise<PostMetadata[]> => {
   try {
-    // -------------------------------------------------------
-    // FETCH EVERYTHING (NO FILTERS)
-    // -------------------------------------------------------
+    console.log("Fetching Notion Data...");
+
+    // 1. Fetch EVERYTHING (No Filter) to debug
     const res = await fetch(
       `https://api.notion.com/v1/databases/${NOTION_DATABASE_ID}/query`,
       {
@@ -38,7 +38,7 @@ export const getAllPosts = cache(async (): Promise<PostMetadata[]> => {
         body: JSON.stringify({
           sorts: [{ property: "Date", direction: "descending" }],
         }),
-        next: { revalidate: 1 }, // No caching while debugging
+        next: { revalidate: 1 }, // Disable cache to see changes immediately
       },
     );
 
@@ -48,31 +48,40 @@ export const getAllPosts = cache(async (): Promise<PostMetadata[]> => {
     }
 
     const data = await res.json();
-    console.log(`✅ FOUND ${data.results.length} POSTS in Notion.`);
+    console.log(`✅ Connection Success! Found ${data.results.length} rows.`);
 
+    // 2. Map the data safely
     return data.results.map((page: any) => {
       const props = page.properties;
 
-      // SAFETY: Check both 'select' (dropdown) and 'status' (workflow) types
+      // Log the exact Status value so we can fix the filter later
       const statusVal =
-        props.Status?.status?.name || props.Status?.select?.name || "Unknown";
-
-      // LOGGING: See exactly what Notion is returning for the first post
-      // console.log("Post Title:", props.Name?.title?.[0]?.plain_text, "Status:", statusVal);
+        props.Status?.select?.name || props.Status?.status?.name || "Unknown";
 
       return {
         id: page.id,
-        title: props.Name?.title?.[0]?.plain_text || "Untitled",
+        // Title: Handle different casing of "Name" or "title"
+        title:
+          props.Name?.title?.[0]?.plain_text ||
+          props.Title?.title?.[0]?.plain_text ||
+          "Untitled",
         subtitle: props.Subtitle?.rich_text?.[0]?.plain_text || "",
         slug: props.Slug?.rich_text?.[0]?.plain_text || page.id,
+
+        // Category: Handle Select type
         category: props.Category?.select?.name || "Uncategorized",
-        date: props.Date?.date?.start || "",
+
+        // Date: Handle Date type
+        date: props.Date?.date?.start || new Date().toISOString().split("T")[0],
+
         excerpt: props.Excerpt?.rich_text?.[0]?.plain_text || "",
         image:
           props.Image?.files?.[0]?.file?.url ||
           props.Image?.files?.[0]?.external?.url ||
           "",
         featured: props.Featured?.checkbox || false,
+
+        // Status: Handle BOTH Select and Status types
         status: statusVal,
         tags: props.Tags?.multi_select?.map((t: any) => t.name) || [],
       };
@@ -86,6 +95,7 @@ export const getAllPosts = cache(async (): Promise<PostMetadata[]> => {
 // Helpers
 export async function getUniqueCategories() {
   const posts = await getAllPosts();
+  // Filter out undefined/null categories
   const categories = new Set(
     posts.map((p) => p.category).filter((c) => c && c !== "Uncategorized"),
   );

@@ -46,12 +46,11 @@ export function Sidebar({ categories }: SidebarProps) {
       <nav className="flex flex-col h-full bg-[#FBF8F3] border-r border-[#E5E0D6] px-4 py-6 relative z-10">
         {/* 1. LOGO */}
         <div className=" px-2">
-          <h1 className="font-sans-serif text-6xl font-bold tracking-wide text-[#1A1A1A]">
-            My Blog
+          <h1 className="font-sans-serif text-8xl font-bold tracking-wide text-[#1A1A1A]">
+            A Blog
           </h1>
           <p className="text-sm text-slate-400 my-5">
-            A place for my musings about life, people, and everything in
-            between.
+            Ryan's musings about life, people, and everything in between.
           </p>
         </div>
 
@@ -99,7 +98,7 @@ export function Sidebar({ categories }: SidebarProps) {
           )}
         </div>
 
-        {/* 5. FOOTER (Theme Toggle) */}
+        {/* 5. FOOTER (Theme Toggle)
         <div className="pt-4 border-t border-[#E5E0D6] mt-4">
           <div className="flex bg-[#EAE6DF] p-1 rounded-lg">
             <button className="flex-1 text-[10px] font-semibold py-1 bg-white shadow-sm rounded text-slate-800">
@@ -112,7 +111,7 @@ export function Sidebar({ categories }: SidebarProps) {
               Auto
             </button>
           </div>
-        </div>
+        </div> */}
       </nav>
 
       {/* ABOUT ME MODAL OVERLAY */}
@@ -261,12 +260,12 @@ export function Sidebar({ categories }: SidebarProps) {
                 </>
               ) : (
                 <>
-                  <button
+                  {/* <button
                     onClick={() => setModalView("bio")}
                     className="text-sm font-semibold text-slate-500 hover:text-slate-800 flex items-center gap-1"
                   >
                     ← Back to Bio
-                  </button>
+                  </button> */}
                   <div />
                 </>
               )}

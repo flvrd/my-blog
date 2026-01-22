@@ -70,14 +70,6 @@ export function ArticleList({ posts, category }: ArticleListProps) {
                     : "bg-white border-transparent hover:bg-[#FBF8F3] hover:border-[#E5E0D6]"
                 }`}
               >
-                <div
-                  className={`text-[10px] uppercase tracking-wide font-medium mb-2 ${
-                    isActive ? "text-slate-400" : "text-slate-400"
-                  }`}
-                >
-                  {post.date} <span className="mx-1">|</span> {post.category}
-                </div>
-
                 {/* TITLE: Ensuring Sans-Serif here too */}
                 <h3
                   className={`font-sans font-bold text-sm leading-snug ${
@@ -86,6 +78,13 @@ export function ArticleList({ posts, category }: ArticleListProps) {
                 >
                   {post.title}
                 </h3>
+                <div
+                  className={`text-[10px] uppercase tracking-wide font-medium mb-2 ${
+                    isActive ? "text-slate-400" : "text-slate-400"
+                  }`}
+                >
+                  {post.date} <span className="mx-1">|</span> {post.category}
+                </div>
               </Link>
             </li>
           );
